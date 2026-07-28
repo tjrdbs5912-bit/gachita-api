@@ -4,17 +4,21 @@ import (
 	"fmt"
 	"net/http"
 
+	"gachita-api/internal/auth"
 	"gachita-api/internal/db"
 )
 
 type Router struct {
 	queries *db.Queries
+	tokens  *auth.TokenService
 }
 
-func NewRouter(queries *db.Queries) http.Handler {
-	r := &Router{queries: queries}
+func NewRouter(queries *db.Queries, tokens *auth.TokenService) http.Handler {
+	r := &Router{queries: queries, tokens: tokens}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/health", r.health)
+	mux.HandleFunc("POST /api/auth/signup", r.signUp)
+	mux.HandleFunc("POST /api/auth/login", r.login)
 	return mux
 }
 
