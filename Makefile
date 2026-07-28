@@ -1,4 +1,9 @@
-.PHONY: fmt lint tidy
+ifneq (,$(wildcard .env))
+include .env
+export
+endif
+
+.PHONY: fmt lint tidy migrate-up migrate-down
 
 fmt:
 	go fmt ./...
@@ -9,3 +14,9 @@ lint:
 
 tidy:
 	go mod tidy
+
+migrate-up:
+	goose -dir db/migrations postgres "$(DATABASE_URL)" up
+
+migrate-down:
+	goose -dir db/migrations postgres "$(DATABASE_URL)" down
