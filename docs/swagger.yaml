@@ -1,5 +1,17 @@
 basePath: /
 definitions:
+  internal_adapter_http.createRoomRequest:
+    properties:
+      name:
+        type: string
+      openchat_url:
+        type: string
+    type: object
+  internal_adapter_http.joinRoomRequest:
+    properties:
+      invite_code:
+        type: string
+    type: object
   internal_adapter_http.loginRequest:
     properties:
       email:
@@ -85,6 +97,77 @@ paths:
       summary: 내 정보 조회
       tags:
       - user
+  /api/rooms:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 방 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_adapter_http.createRoomRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 방 생성
+      tags:
+      - room
+  /api/rooms/{id}:
+    get:
+      parameters:
+      - description: 방 ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 방 조회
+      tags:
+      - room
+  /api/rooms/join:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 초대 코드
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_adapter_http.joinRoomRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 방 입장
+      tags:
+      - room
 securityDefinitions:
   BearerAuth:
     in: header

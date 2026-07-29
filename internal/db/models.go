@@ -8,6 +8,22 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type Room struct {
+	ID          pgtype.UUID
+	Name        string
+	InviteCode  string
+	OpenchatUrl pgtype.Text
+	OwnerID     pgtype.UUID
+	CreatedAt   pgtype.Timestamptz
+	UpdatedAt   pgtype.Timestamptz
+}
+
+type RoomMember struct {
+	RoomID   pgtype.UUID
+	UserID   pgtype.UUID
+	JoinedAt pgtype.Timestamptz
+}
+
 type User struct {
 	ID           pgtype.UUID
 	Email        string
