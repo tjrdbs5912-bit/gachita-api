@@ -1,0 +1,72 @@
+basePath: /
+definitions:
+  internal_adapter_http.loginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  internal_adapter_http.signUpRequest:
+    properties:
+      email:
+        type: string
+      nickname:
+        type: string
+      password:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: gachita API
+  title: Gachita API
+  version: "1.0"
+paths:
+  /api/auth/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 로그인 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_adapter_http.loginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 로그인
+      tags:
+      - auth
+  /api/auth/signup:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 가입 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_adapter_http.signUpRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 회원가입
+      tags:
+      - auth
+swagger: "2.0"

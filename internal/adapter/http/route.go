@@ -6,6 +6,10 @@ import (
 
 	"gachita-api/internal/auth"
 	"gachita-api/internal/db"
+
+	_ "gachita-api/docs"
+
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 type Router struct {
@@ -17,6 +21,7 @@ func NewRouter(queries *db.Queries, tokens *auth.TokenService) http.Handler {
 	r := &Router{queries: queries, tokens: tokens}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/health", r.health)
+	mux.Handle("/swagger/", httpSwagger.WrapHandler)
 	mux.HandleFunc("POST /api/auth/signup", r.signUp)
 	mux.HandleFunc("POST /api/auth/login", r.login)
 	return mux

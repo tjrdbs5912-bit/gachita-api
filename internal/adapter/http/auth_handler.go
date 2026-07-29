@@ -16,6 +16,14 @@ type signUpRequest struct {
 	Nickname string `json:"nickname"`
 }
 
+// SignUp godoc
+// @Summary      회원가입
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        body  body  signUpRequest  true  "가입 정보"
+// @Success      201  {object}  map[string]string
+// @Router       /api/auth/signup [post]
 func (r *Router) signUp(w http.ResponseWriter, req *http.Request) {
 	var body signUpRequest
 	if err := decodeJSON(req, &body); err != nil {
@@ -61,6 +69,14 @@ type loginRequest struct {
 	Password string `json:"password"`
 }
 
+// Login godoc
+// @Summary      로그인
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        body  body  loginRequest  true  "로그인 정보"
+// @Success      200  {object}  map[string]string
+// @Router       /api/auth/login [post]
 func (r *Router) login(w http.ResponseWriter, req *http.Request) {
 	var body loginRequest
 	if err := decodeJSON(req, &body); err != nil {
@@ -89,6 +105,7 @@ func (r *Router) login(w http.ResponseWriter, req *http.Request) {
 		writeError(w, http.StatusInternalServerError, "토큰 발급에 실패했습니다.")
 		return
 	}
+
 	writeJSON(w, http.StatusOK, map[string]any{
 		"access_token": token,
 		"token_type":   "Bearer",
