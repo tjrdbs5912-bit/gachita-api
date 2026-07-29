@@ -20,10 +20,17 @@ type Router struct {
 func NewRouter(queries *db.Queries, tokens *auth.TokenService) http.Handler {
 	r := &Router{queries: queries, tokens: tokens}
 	mux := http.NewServeMux()
+
 	mux.HandleFunc("/health", r.health)
 	mux.Handle("/swagger/", httpSwagger.WrapHandler)
+
+	// 인증 불필요
 	mux.HandleFunc("POST /api/auth/signup", r.signUp)
 	mux.HandleFunc("POST /api/auth/login", r.login)
+
+	// 인증 필요
+	mux.Handle("GET /api/me", r.authMiddleware(http.HandlerFunc(r.getMe)))
+
 	return mux
 }
 

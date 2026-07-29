@@ -100,14 +100,14 @@ func (r *Router) login(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	token, err := r.tokens.IssueAccessToken(user.ID.String(), user.Email)
+	accessToken, err := r.tokens.IssueAccessToken(user.ID.String(), user.Email)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "토큰 발급에 실패했습니다.")
 		return
 	}
 
-	writeJSON(w, http.StatusOK, map[string]any{
-		"access_token": token,
+	writeJSON(w, http.StatusOK, map[string]string{
+		"access_token": accessToken,
 		"token_type":   "Bearer",
 	})
 }
