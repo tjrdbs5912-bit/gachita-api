@@ -223,9 +223,201 @@
                     }
                 }
             }
+        },
+        "/api/rooms/{id}/stops": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "hub_stop"
+                ],
+                "summary": "거점 목록",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "방 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "hub_stop"
+                ],
+                "summary": "거점 추가",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "방 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "거점 정보",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_adapter_http.createHubStopRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/rooms/{id}/stops/{stopId}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "hub_stop"
+                ],
+                "summary": "거점 수정",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "방 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "거점 ID",
+                        "name": "stopId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "거점 정보",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_adapter_http.updateHubStopRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "hub_stop"
+                ],
+                "summary": "거점 삭제",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "방 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "거점 ID",
+                        "name": "stopId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "internal_adapter_http.createHubStopRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "sort_order": {
+                    "type": "integer"
+                }
+            }
+        },
         "internal_adapter_http.createRoomRequest": {
             "type": "object",
             "properties": {
@@ -267,6 +459,17 @@
                 },
                 "password": {
                     "type": "string"
+                }
+            }
+        },
+        "internal_adapter_http.updateHubStopRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "sort_order": {
+                    "type": "integer"
                 }
             }
         }

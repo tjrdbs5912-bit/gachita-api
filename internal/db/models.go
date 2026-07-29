@@ -8,6 +8,14 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type HubStop struct {
+	ID        pgtype.UUID
+	RoomID    pgtype.UUID
+	Name      string
+	SortOrder int32
+	CreatedAt pgtype.Timestamptz
+}
+
 type Room struct {
 	ID          pgtype.UUID
 	Name        string

@@ -1,5 +1,12 @@
 basePath: /
 definitions:
+  internal_adapter_http.createHubStopRequest:
+    properties:
+      name:
+        type: string
+      sort_order:
+        type: integer
+    type: object
   internal_adapter_http.createRoomRequest:
     properties:
       name:
@@ -27,6 +34,13 @@ definitions:
         type: string
       password:
         type: string
+    type: object
+  internal_adapter_http.updateHubStopRequest:
+    properties:
+      name:
+        type: string
+      sort_order:
+        type: integer
     type: object
 host: localhost:8080
 info:
@@ -143,6 +157,120 @@ paths:
       summary: 방 조회
       tags:
       - room
+  /api/rooms/{id}/stops:
+    get:
+      parameters:
+      - description: 방 ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              additionalProperties:
+                type: string
+              type: object
+            type: array
+      security:
+      - BearerAuth: []
+      summary: 거점 목록
+      tags:
+      - hub_stop
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 방 ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 거점 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_adapter_http.createHubStopRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 거점 추가
+      tags:
+      - hub_stop
+  /api/rooms/{id}/stops/{stopId}:
+    delete:
+      parameters:
+      - description: 방 ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 거점 ID
+        in: path
+        name: stopId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 거점 삭제
+      tags:
+      - hub_stop
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 방 ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 거점 ID
+        in: path
+        name: stopId
+        required: true
+        type: string
+      - description: 거점 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_adapter_http.updateHubStopRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 거점 수정
+      tags:
+      - hub_stop
   /api/rooms/join:
     post:
       consumes:

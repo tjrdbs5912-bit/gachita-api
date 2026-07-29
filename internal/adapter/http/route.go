@@ -33,6 +33,10 @@ func NewRouter(queries *db.Queries, tokens *auth.TokenService) http.Handler {
 	mux.Handle("POST /api/rooms", r.authMiddleware(http.HandlerFunc(r.createRoom)))
 	mux.Handle("POST /api/rooms/join", r.authMiddleware(http.HandlerFunc(r.joinRoom)))
 	mux.Handle("GET /api/rooms/{id}", r.authMiddleware(http.HandlerFunc(r.getRoom)))
+	mux.Handle("POST /api/rooms/{id}/stops", r.authMiddleware(http.HandlerFunc(r.createHubStop)))
+	mux.Handle("GET /api/rooms/{id}/stops", r.authMiddleware(http.HandlerFunc(r.listHubStops)))
+	mux.Handle("PUT /api/rooms/{id}/stops/{stopId}", r.authMiddleware(http.HandlerFunc(r.updateHubStop)))
+	mux.Handle("DELETE /api/rooms/{id}/stops/{stopId}", r.authMiddleware(http.HandlerFunc(r.deleteHubStop)))
 	return mux
 }
 
