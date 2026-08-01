@@ -37,6 +37,9 @@ func NewRouter(queries *db.Queries, tokens *auth.TokenService) http.Handler {
 	mux.Handle("GET /api/rooms/{id}/stops", r.authMiddleware(http.HandlerFunc(r.listHubStops)))
 	mux.Handle("PUT /api/rooms/{id}/stops/{stopId}", r.authMiddleware(http.HandlerFunc(r.updateHubStop)))
 	mux.Handle("DELETE /api/rooms/{id}/stops/{stopId}", r.authMiddleware(http.HandlerFunc(r.deleteHubStop)))
+	mux.Handle("POST /api/rooms/{id}/queue", r.authMiddleware(http.HandlerFunc(r.createQueueEntry)))
+	mux.Handle("GET /api/rooms/{id}/queue", r.authMiddleware(http.HandlerFunc(r.listQueueEntries)))
+	mux.Handle("DELETE /api/rooms/{id}/queue/{entryId}", r.authMiddleware(http.HandlerFunc(r.cancelQueueEntry)))
 	return mux
 }
 

@@ -7,6 +7,21 @@ definitions:
       sort_order:
         type: integer
     type: object
+  internal_adapter_http.createQueueEntryRequest:
+    properties:
+      from_stop_id:
+        type: string
+      max_seats:
+        type: integer
+      min_seats:
+        type: integer
+      time_end:
+        type: string
+      time_start:
+        type: string
+      to_stop_id:
+        type: string
+    type: object
   internal_adapter_http.createRoomRequest:
     properties:
       name:
@@ -157,6 +172,86 @@ paths:
       summary: 방 조회
       tags:
       - room
+  /api/rooms/{id}/queue:
+    get:
+      parameters:
+      - description: 방 ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              additionalProperties:
+                type: string
+              type: object
+            type: array
+      security:
+      - BearerAuth: []
+      summary: 매칭 대기 목록
+      tags:
+      - queue
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 방 ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 대기 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_adapter_http.createQueueEntryRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 매칭 대기 등록
+      tags:
+      - queue
+  /api/rooms/{id}/queue/{entryId}:
+    delete:
+      parameters:
+      - description: 방 ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 대기 ID
+        in: path
+        name: entryId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 매칭 대기 취소
+      tags:
+      - queue
   /api/rooms/{id}/stops:
     get:
       parameters:

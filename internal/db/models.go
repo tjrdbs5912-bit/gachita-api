@@ -16,6 +16,20 @@ type HubStop struct {
 	CreatedAt pgtype.Timestamptz
 }
 
+type QueueEntry struct {
+	ID         pgtype.UUID
+	RoomID     pgtype.UUID
+	UserID     pgtype.UUID
+	FromStopID pgtype.UUID
+	ToStopID   pgtype.UUID
+	TimeStart  pgtype.Timestamptz
+	TimeEnd    pgtype.Timestamptz
+	MinSeats   int32
+	MaxSeats   int32
+	Status     string
+	CreatedAt  pgtype.Timestamptz
+}
+
 type Room struct {
 	ID          pgtype.UUID
 	Name        string

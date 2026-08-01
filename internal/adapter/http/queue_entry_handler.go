@@ -1,0 +1,238 @@
+package httpadapter
+
+import (
+	"net/http"
+	"strconv"
+	"time"
+
+	"gachita-api/internal/db"
+
+	"github.com/jackc/pgx/v5/pgtype"
+)
+
+type createQueueEntryRequest struct {
+	FromStopID string    `json:"from_stop_id"`
+	ToStopID   string    `json:"to_stop_id"`
+	TimeStart  time.Time `json:"time_start"`
+	TimeEnd    time.Time `json:"time_end"`
+	MinSeats   *int32    `json:"min_seats"`
+	MaxSeats   *int32    `json:"max_seats"`
+}
+
+func queueEntryToMap(e db.QueueEntry) map[string]string {
+	return map[string]string{
+		"id":           e.ID.String(),
+		"room_id":      e.RoomID.String(),
+		"user_id":      e.UserID.String(),
+		"from_stop_id": e.FromStopID.String(),
+		"to_stop_id":   e.ToStopID.String(),
+		"time_start":   e.TimeStart.Time.Format(time.RFC3339),
+		"time_end":     e.TimeEnd.Time.Format(time.RFC3339),
+		"min_seats":    strconv.Itoa(int(e.MinSeats)),
+		"max_seats":    strconv.Itoa(int(e.MaxSeats)),
+		"status":       e.Status,
+	}
+}
+
+// CreateQueueEntry godoc
+// @Summary      매칭 대기 등록
+// @Tags         queue
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id    path  string  true  "방 ID"
+// @Param        body  body  createQueueEntryRequest  true  "대기 정보"
+// @Success      201  {object}  map[string]string
+// @Router       /api/rooms/{id}/queue [post]
+func (r *Router) createQueueEntry(w http.ResponseWriter, req *http.Request) {
+	userIDStr, ok := req.Context().Value(contextKeyUserID).(string)
+	if !ok || userIDStr == "" {
+		writeError(w, http.StatusUnauthorized, "인증 정보가 없습니다.")
+		return
+	}
+	var userID pgtype.UUID
+	if err := userID.Scan(userIDStr); err != nil {
+		writeError(w, http.StatusBadRequest, "유효하지 않은 사용자 ID입니다.")
+		return
+	}
+
+	var roomID pgtype.UUID
+	if err := roomID.Scan(req.PathValue("id")); err != nil {
+		writeError(w, http.StatusBadRequest, "유효하지 않은 방 ID입니다.")
+		return
+	}
+
+	_, err := r.queries.GetRoomMember(req.Context(), db.GetRoomMemberParams{
+		RoomID: roomID,
+		UserID: userID,
+	})
+	if err != nil {
+		writeError(w, http.StatusForbidden, "방에 참여하지 않았습니다.")
+		return
+	}
+
+	var body createQueueEntryRequest
+	if err := decodeJSON(req, &body); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid json")
+		return
+	}
+
+	var fromStopID, toStopID pgtype.UUID
+	if err := fromStopID.Scan(body.FromStopID); err != nil {
+		writeError(w, http.StatusBadRequest, "유효하지 않은 출발 거점 ID입니다.")
+		return
+	}
+	if err := toStopID.Scan(body.ToStopID); err != nil {
+		writeError(w, http.StatusBadRequest, "유효하지 않은 도착 거점 ID입니다.")
+		return
+	}
+	if body.FromStopID == body.ToStopID {
+		writeError(w, http.StatusBadRequest, "출발 거점과 도착 거점이 같을 수 없습니다.")
+		return
+	}
+
+	if body.TimeStart.IsZero() || body.TimeEnd.IsZero() {
+		writeError(w, http.StatusBadRequest, "time_start, time_end는 필수입니다.")
+		return
+	}
+	if !body.TimeStart.Before(body.TimeEnd) {
+		writeError(w, http.StatusBadRequest, "time_start는 time_end보다 빨라야 합니다.")
+		return
+	}
+
+	minSeats := int32(2)
+	maxSeats := int32(4)
+	if body.MinSeats != nil {
+		minSeats = *body.MinSeats
+	}
+	if body.MaxSeats != nil {
+		maxSeats = *body.MaxSeats
+	}
+	if minSeats < 1 || maxSeats < minSeats {
+		writeError(w, http.StatusBadRequest, "인원 설정이 올바르지 않습니다. (1 <= min <= max)")
+		return
+	}
+
+	// 거점이 이 방 소속인지 확인
+	fromStop, err := r.queries.GetHubStopByID(req.Context(), fromStopID)
+	if err != nil || fromStop.RoomID != roomID {
+		writeError(w, http.StatusBadRequest, "출발 거점이 이 방에 없습니다.")
+		return
+	}
+	toStop, err := r.queries.GetHubStopByID(req.Context(), toStopID)
+	if err != nil || toStop.RoomID != roomID {
+		writeError(w, http.StatusBadRequest, "도착 거점이 이 방에 없습니다.")
+		return
+	}
+
+	entry, err := r.queries.CreateQueueEntry(req.Context(), db.CreateQueueEntryParams{
+		RoomID:     roomID,
+		UserID:     userID,
+		FromStopID: fromStopID,
+		ToStopID:   toStopID,
+		TimeStart:  pgtype.Timestamptz{Time: body.TimeStart, Valid: true},
+		TimeEnd:    pgtype.Timestamptz{Time: body.TimeEnd, Valid: true},
+		MinSeats:   minSeats,
+		MaxSeats:   maxSeats,
+	})
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "대기 등록에 실패했습니다.")
+		return
+	}
+
+	writeJSON(w, http.StatusCreated, queueEntryToMap(entry))
+}
+
+// ListQueueEntries godoc
+// @Summary      매칭 대기 목록
+// @Tags         queue
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id   path  string  true  "방 ID"
+// @Success      200  {array}  map[string]string
+// @Router       /api/rooms/{id}/queue [get]
+func (r *Router) listQueueEntries(w http.ResponseWriter, req *http.Request) {
+	userIDStr, ok := req.Context().Value(contextKeyUserID).(string)
+	if !ok || userIDStr == "" {
+		writeError(w, http.StatusUnauthorized, "인증 정보가 없습니다.")
+		return
+	}
+	var userID pgtype.UUID
+	if err := userID.Scan(userIDStr); err != nil {
+		writeError(w, http.StatusBadRequest, "유효하지 않은 사용자 ID입니다.")
+		return
+	}
+
+	var roomID pgtype.UUID
+	if err := roomID.Scan(req.PathValue("id")); err != nil {
+		writeError(w, http.StatusBadRequest, "유효하지 않은 방 ID입니다.")
+		return
+	}
+
+	_, err := r.queries.GetRoomMember(req.Context(), db.GetRoomMemberParams{
+		RoomID: roomID,
+		UserID: userID,
+	})
+	if err != nil {
+		writeError(w, http.StatusForbidden, "방에 참여하지 않았습니다.")
+		return
+	}
+
+	entries, err := r.queries.ListWaitingQueueEntriesByRoomID(req.Context(), roomID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "대기 목록 조회에 실패했습니다.")
+		return
+	}
+
+	list := make([]map[string]string, 0, len(entries))
+	for _, e := range entries {
+		list = append(list, queueEntryToMap(e))
+	}
+	writeJSON(w, http.StatusOK, list)
+}
+
+// CancelQueueEntry godoc
+// @Summary      매칭 대기 취소
+// @Tags         queue
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id       path  string  true  "방 ID"
+// @Param        entryId  path  string  true  "대기 ID"
+// @Success      200  {object}  map[string]string
+// @Router       /api/rooms/{id}/queue/{entryId} [delete]
+func (r *Router) cancelQueueEntry(w http.ResponseWriter, req *http.Request) {
+	userIDStr, ok := req.Context().Value(contextKeyUserID).(string)
+	if !ok || userIDStr == "" {
+		writeError(w, http.StatusUnauthorized, "인증 정보가 없습니다.")
+		return
+	}
+	var userID pgtype.UUID
+	if err := userID.Scan(userIDStr); err != nil {
+		writeError(w, http.StatusBadRequest, "유효하지 않은 사용자 ID입니다.")
+		return
+	}
+
+	var roomID pgtype.UUID
+	if err := roomID.Scan(req.PathValue("id")); err != nil {
+		writeError(w, http.StatusBadRequest, "유효하지 않은 방 ID입니다.")
+		return
+	}
+
+	var entryID pgtype.UUID
+	if err := entryID.Scan(req.PathValue("entryId")); err != nil {
+		writeError(w, http.StatusBadRequest, "유효하지 않은 대기 ID입니다.")
+		return
+	}
+
+	entry, err := r.queries.CancelQueueEntry(req.Context(), db.CancelQueueEntryParams{
+		ID:     entryID,
+		RoomID: roomID,
+		UserID: userID,
+	})
+	if err != nil {
+		writeError(w, http.StatusNotFound, "취소할 대기가 없습니다.")
+		return
+	}
+
+	writeJSON(w, http.StatusOK, queueEntryToMap(entry))
+}
