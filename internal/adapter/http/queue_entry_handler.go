@@ -176,8 +176,8 @@ func tryMatch(ctx context.Context, q *db.Queries, entry db.QueueEntry) (db.Match
 		RoomID:     entry.RoomID,
 		FromStopID: entry.FromStopID,
 		ToStopID:   entry.ToStopID,
-		TimeStart:  entry.TimeEnd,   // time_start < 새 대기의 time_end
-		TimeEnd:    entry.TimeStart, // time_end   > 새 대기의 time_start
+		TimeStart:  entry.TimeEnd,
+		TimeEnd:    entry.TimeStart,
 	})
 	if err != nil {
 		return db.Match{}, false, err
@@ -187,7 +187,7 @@ func tryMatch(ctx context.Context, q *db.Queries, entry db.QueueEntry) (db.Match
 		return db.Match{}, false, nil
 	}
 
-	// 그룹 크기 상한: 후보들의 max_seats 중 가장 작은 값
+	//후보들의 max_seats 중 가장 작은 값
 	capSize := candidates[0].MaxSeats
 	for _, c := range candidates {
 		if c.MaxSeats < capSize {
@@ -212,7 +212,6 @@ func tryMatch(ctx context.Context, q *db.Queries, entry db.QueueEntry) (db.Match
 		return db.Match{}, false, nil
 	}
 
-	// 필요 인원: 그룹 내 min_seats 중 가장 큰 값
 	need := group[0].MinSeats
 	for _, g := range group {
 		if g.MinSeats > need {
@@ -242,6 +241,20 @@ func tryMatch(ctx context.Context, q *db.Queries, entry db.QueueEntry) (db.Match
 
 	if err := q.MarkQueueEntriesMatched(ctx, entryIDs); err != nil {
 		return db.Match{}, false, err
+	}
+
+	// 매칭된 멤버 전원에게 알림 생성
+	for _, g := range group {
+		if _, err := q.CreateNotification(ctx, db.CreateNotificationParams{
+			UserID:  g.UserID,
+			Type:    "match_confirmed",
+			Title:   "매칭이 성사되었습니다!",
+			Body:    "같이 탈 사람이 모였어요. 매칭 상세에서 확인하세요.",
+			RefType: pgtype.Text{String: "match", Valid: true},
+			RefID:   match.ID,
+		}); err != nil {
+			return db.Match{}, false, err
+		}
 	}
 
 	return match, true, nil

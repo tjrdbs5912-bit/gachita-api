@@ -44,6 +44,9 @@ func NewRouter(pool *pgxpool.Pool, queries *db.Queries, tokens *auth.TokenServic
 	mux.Handle("DELETE /api/rooms/{id}/queue/{entryId}", r.authMiddleware(http.HandlerFunc(r.cancelQueueEntry)))
 	mux.Handle("GET /api/rooms/{id}/matches", r.authMiddleware(http.HandlerFunc(r.listMatches)))
 	mux.Handle("GET /api/rooms/{id}/matches/{matchId}", r.authMiddleware(http.HandlerFunc(r.getMatch)))
+	mux.Handle("GET /api/notifications", r.authMiddleware(http.HandlerFunc(r.listNotifications)))
+	mux.Handle("PUT /api/notifications/read-all", r.authMiddleware(http.HandlerFunc(r.readAllNotifications)))
+	mux.Handle("PUT /api/notifications/{notificationId}/read", r.authMiddleware(http.HandlerFunc(r.readNotification)))
 	return mux
 }
 

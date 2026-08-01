@@ -126,6 +126,62 @@ paths:
       summary: 내 정보 조회
       tags:
       - user
+  /api/notifications:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              additionalProperties:
+                type: string
+              type: object
+            type: array
+      security:
+      - BearerAuth: []
+      summary: 내 알림 목록
+      tags:
+      - notification
+  /api/notifications/{notificationId}/read:
+    put:
+      parameters:
+      - description: 알림 ID
+        in: path
+        name: notificationId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 알림 읽음 처리
+      tags:
+      - notification
+  /api/notifications/read-all:
+    put:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 알림 전체 읽음 처리
+      tags:
+      - notification
   /api/rooms:
     post:
       consumes:

@@ -29,6 +29,18 @@ type MatchMember struct {
 	QueueEntryID pgtype.UUID
 }
 
+type Notification struct {
+	ID        pgtype.UUID
+	UserID    pgtype.UUID
+	Type      string
+	Title     string
+	Body      string
+	RefType   pgtype.Text
+	RefID     pgtype.UUID
+	ReadAt    pgtype.Timestamptz
+	CreatedAt pgtype.Timestamptz
+}
+
 type QueueEntry struct {
 	ID         pgtype.UUID
 	RoomID     pgtype.UUID
