@@ -47,7 +47,7 @@ func NewRouter(pool *pgxpool.Pool, queries *db.Queries, tokens *auth.TokenServic
 	mux.Handle("GET /api/notifications", r.authMiddleware(http.HandlerFunc(r.listNotifications)))
 	mux.Handle("PUT /api/notifications/read-all", r.authMiddleware(http.HandlerFunc(r.readAllNotifications)))
 	mux.Handle("PUT /api/notifications/{notificationId}/read", r.authMiddleware(http.HandlerFunc(r.readNotification)))
-	return mux
+	return corsMiddleware(mux)
 }
 
 func (r *Router) health(w http.ResponseWriter, req *http.Request) {
