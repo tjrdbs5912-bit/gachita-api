@@ -1,6 +1,7 @@
 package httpadapter
 
 import (
+	"context"
 	"net/http"
 	"strconv"
 	"time"
@@ -125,7 +126,16 @@ func (r *Router) createQueueEntry(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	entry, err := r.queries.CreateQueueEntry(req.Context(), db.CreateQueueEntryParams{
+	ctx := req.Context()
+	tx, err := r.pool.Begin(ctx)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "대기 등록에 실패했습니다.")
+		return
+	}
+	defer tx.Rollback(ctx)
+	qtx := r.queries.WithTx(tx)
+
+	entry, err := qtx.CreateQueueEntry(ctx, db.CreateQueueEntryParams{
 		RoomID:     roomID,
 		UserID:     userID,
 		FromStopID: fromStopID,
@@ -140,7 +150,101 @@ func (r *Router) createQueueEntry(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusCreated, queueEntryToMap(entry))
+	match, matched, err := tryMatch(ctx, qtx, entry)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "매칭 처리에 실패했습니다.")
+		return
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		writeError(w, http.StatusInternalServerError, "대기 등록에 실패했습니다.")
+		return
+	}
+
+	resp := queueEntryToMap(entry)
+	if matched {
+		resp["status"] = "matched"
+		resp["match_id"] = match.ID.String()
+	}
+	writeJSON(w, http.StatusCreated, resp)
+}
+
+// tryMatch는 새 대기(entry)와 같은 구간·겹치는 시간의 waiting 대기들을 모아,
+// 인원 조건(min~max)이 맞으면 매칭을 생성한다.
+func tryMatch(ctx context.Context, q *db.Queries, entry db.QueueEntry) (db.Match, bool, error) {
+	candidates, err := q.ListMatchCandidates(ctx, db.ListMatchCandidatesParams{
+		RoomID:     entry.RoomID,
+		FromStopID: entry.FromStopID,
+		ToStopID:   entry.ToStopID,
+		TimeStart:  entry.TimeEnd,   // time_start < 새 대기의 time_end
+		TimeEnd:    entry.TimeStart, // time_end   > 새 대기의 time_start
+	})
+	if err != nil {
+		return db.Match{}, false, err
+	}
+
+	if len(candidates) < 2 {
+		return db.Match{}, false, nil
+	}
+
+	// 그룹 크기 상한: 후보들의 max_seats 중 가장 작은 값
+	capSize := candidates[0].MaxSeats
+	for _, c := range candidates {
+		if c.MaxSeats < capSize {
+			capSize = c.MaxSeats
+		}
+	}
+	if int32(len(candidates)) < capSize {
+		capSize = int32(len(candidates))
+	}
+
+	group := candidates[:capSize]
+
+	// 새 대기가 그룹에 포함되지 않으면 이번엔 매칭하지 않음
+	included := false
+	for _, g := range group {
+		if g.ID == entry.ID {
+			included = true
+			break
+		}
+	}
+	if !included {
+		return db.Match{}, false, nil
+	}
+
+	// 필요 인원: 그룹 내 min_seats 중 가장 큰 값
+	need := group[0].MinSeats
+	for _, g := range group {
+		if g.MinSeats > need {
+			need = g.MinSeats
+		}
+	}
+	if int32(len(group)) < need {
+		return db.Match{}, false, nil
+	}
+
+	match, err := q.CreateMatch(ctx, entry.RoomID)
+	if err != nil {
+		return db.Match{}, false, err
+	}
+
+	entryIDs := make([]pgtype.UUID, 0, len(group))
+	for _, g := range group {
+		if err := q.AddMatchMember(ctx, db.AddMatchMemberParams{
+			MatchID:      match.ID,
+			UserID:       g.UserID,
+			QueueEntryID: g.ID,
+		}); err != nil {
+			return db.Match{}, false, err
+		}
+		entryIDs = append(entryIDs, g.ID)
+	}
+
+	if err := q.MarkQueueEntriesMatched(ctx, entryIDs); err != nil {
+		return db.Match{}, false, err
+	}
+
+	return match, true, nil
 }
 
 // ListQueueEntries godoc

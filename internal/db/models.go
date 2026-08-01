@@ -16,6 +16,19 @@ type HubStop struct {
 	CreatedAt pgtype.Timestamptz
 }
 
+type Match struct {
+	ID        pgtype.UUID
+	RoomID    pgtype.UUID
+	Status    string
+	CreatedAt pgtype.Timestamptz
+}
+
+type MatchMember struct {
+	MatchID      pgtype.UUID
+	UserID       pgtype.UUID
+	QueueEntryID pgtype.UUID
+}
+
 type QueueEntry struct {
 	ID         pgtype.UUID
 	RoomID     pgtype.UUID

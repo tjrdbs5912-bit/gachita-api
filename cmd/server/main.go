@@ -39,7 +39,7 @@ func main() {
 	defer pool.Close()
 	queries := db.New(pool)
 	tokens := auth.NewTokenService(cfg.JWTSecret, cfg.JWTExpiresIn)
-	handler := httpadapter.NewRouter(queries, tokens)
+	handler := httpadapter.NewRouter(pool, queries, tokens)
 	fmt.Println("Server is running on", cfg.HTTPAddr)
 	if err := http.ListenAndServe(cfg.HTTPAddr, handler); err != nil {
 		fmt.Println("Failed to start server:", err)

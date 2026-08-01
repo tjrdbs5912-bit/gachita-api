@@ -9,16 +9,18 @@ import (
 
 	_ "gachita-api/docs"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 type Router struct {
+	pool    *pgxpool.Pool
 	queries *db.Queries
 	tokens  *auth.TokenService
 }
 
-func NewRouter(queries *db.Queries, tokens *auth.TokenService) http.Handler {
-	r := &Router{queries: queries, tokens: tokens}
+func NewRouter(pool *pgxpool.Pool, queries *db.Queries, tokens *auth.TokenService) http.Handler {
+	r := &Router{pool: pool, queries: queries, tokens: tokens}
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/health", r.health)
@@ -40,6 +42,8 @@ func NewRouter(queries *db.Queries, tokens *auth.TokenService) http.Handler {
 	mux.Handle("POST /api/rooms/{id}/queue", r.authMiddleware(http.HandlerFunc(r.createQueueEntry)))
 	mux.Handle("GET /api/rooms/{id}/queue", r.authMiddleware(http.HandlerFunc(r.listQueueEntries)))
 	mux.Handle("DELETE /api/rooms/{id}/queue/{entryId}", r.authMiddleware(http.HandlerFunc(r.cancelQueueEntry)))
+	mux.Handle("GET /api/rooms/{id}/matches", r.authMiddleware(http.HandlerFunc(r.listMatches)))
+	mux.Handle("GET /api/rooms/{id}/matches/{matchId}", r.authMiddleware(http.HandlerFunc(r.getMatch)))
 	return mux
 }
 
