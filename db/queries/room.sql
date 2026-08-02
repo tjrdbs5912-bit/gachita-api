@@ -8,3 +8,10 @@ SELECT * FROM rooms WHERE id = $1;
 
 -- name: GetRoomByInviteCode :one
 SELECT * FROM rooms WHERE invite_code = $1;
+
+-- name: ListRoomsByUserID :many
+SELECT r.*
+FROM rooms r
+JOIN room_members rm ON rm.room_id = r.id
+WHERE rm.user_id = $1
+ORDER BY rm.joined_at DESC;

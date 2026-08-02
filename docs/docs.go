@@ -190,6 +190,31 @@ const docTemplate = `{
             }
         },
         "/api/rooms": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "room"
+                ],
+                "summary": "내 방 목록",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/RoomResponse"
+                            }
+                        }
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {

@@ -32,6 +32,7 @@ func NewRouter(pool *pgxpool.Pool, queries *db.Queries, tokens *auth.TokenServic
 
 	// 인증 필요
 	mux.Handle("GET /api/me", r.authMiddleware(http.HandlerFunc(r.getMe)))
+	mux.Handle("GET /api/rooms", r.authMiddleware(http.HandlerFunc(r.listRooms)))
 	mux.Handle("POST /api/rooms", r.authMiddleware(http.HandlerFunc(r.createRoom)))
 	mux.Handle("POST /api/rooms/join", r.authMiddleware(http.HandlerFunc(r.joinRoom)))
 	mux.Handle("GET /api/rooms/{id}", r.authMiddleware(http.HandlerFunc(r.getRoom)))

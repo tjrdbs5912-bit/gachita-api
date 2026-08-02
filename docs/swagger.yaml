@@ -338,6 +338,21 @@ paths:
       tags:
       - notification
   /api/rooms:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/RoomResponse'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: 내 방 목록
+      tags:
+      - room
     post:
       consumes:
       - application/json

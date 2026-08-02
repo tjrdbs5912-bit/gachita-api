@@ -223,6 +223,43 @@ func (r *Router) getRoom(w http.ResponseWriter, req *http.Request) {
 	})
 }
 
+// ListRooms godoc
+// @Summary      내 방 목록
+// @Tags         room
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200  {array}   RoomResponse
+// @Router       /api/rooms [get]
+func (r *Router) listRooms(w http.ResponseWriter, req *http.Request) {
+	userIDStr, ok := req.Context().Value(contextKeyUserID).(string)
+	if !ok || userIDStr == "" {
+		writeError(w, http.StatusUnauthorized, "인증 정보가 없습니다.")
+		return
+	}
+	var userID pgtype.UUID
+	if err := userID.Scan(userIDStr); err != nil {
+		writeError(w, http.StatusBadRequest, "유효하지 않은 사용자 ID입니다.")
+		return
+	}
+
+	rooms, err := r.queries.ListRoomsByUserID(req.Context(), userID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "방 목록 조회에 실패했습니다.")
+		return
+	}
+
+	list := make([]map[string]string, 0, len(rooms))
+	for _, room := range rooms {
+		list = append(list, map[string]string{
+			"id":           room.ID.String(),
+			"name":         room.Name,
+			"invite_code":  room.InviteCode,
+			"openchat_url": room.OpenchatUrl.String,
+			"owner_id":     room.OwnerID.String(),
+		})
+	}
+	writeJSON(w, http.StatusOK, list)
+}
 func generateInviteCode() (string, error) {
 	b := make([]byte, 4) // 8자 hex
 	if _, err := rand.Read(b); err != nil {

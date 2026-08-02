@@ -81,3 +81,39 @@ func (q *Queries) GetRoomByInviteCode(ctx context.Context, inviteCode string) (R
 	)
 	return i, err
 }
+
+const listRoomsByUserID = `-- name: ListRoomsByUserID :many
+SELECT r.id, r.name, r.invite_code, r.openchat_url, r.owner_id, r.created_at, r.updated_at
+FROM rooms r
+JOIN room_members rm ON rm.room_id = r.id
+WHERE rm.user_id = $1
+ORDER BY rm.joined_at DESC
+`
+
+func (q *Queries) ListRoomsByUserID(ctx context.Context, userID pgtype.UUID) ([]Room, error) {
+	rows, err := q.db.Query(ctx, listRoomsByUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Room
+	for rows.Next() {
+		var i Room
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.InviteCode,
+			&i.OpenchatUrl,
+			&i.OwnerID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
