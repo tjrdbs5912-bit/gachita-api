@@ -43,7 +43,7 @@ func queueEntryToMap(e db.QueueEntry) map[string]string {
 // @Security     BearerAuth
 // @Param        id    path  string  true  "방 ID"
 // @Param        body  body  createQueueEntryRequest  true  "대기 정보"
-// @Success      201  {object}  map[string]string
+// @Success      201  {object}  QueueEntryResponse
 // @Router       /api/rooms/{id}/queue [post]
 func (r *Router) createQueueEntry(w http.ResponseWriter, req *http.Request) {
 	userIDStr, ok := req.Context().Value(contextKeyUserID).(string)
@@ -266,7 +266,7 @@ func tryMatch(ctx context.Context, q *db.Queries, entry db.QueueEntry) (db.Match
 // @Produce      json
 // @Security     BearerAuth
 // @Param        id   path  string  true  "방 ID"
-// @Success      200  {array}  map[string]string
+// @Success      200  {array}   QueueEntryResponse
 // @Router       /api/rooms/{id}/queue [get]
 func (r *Router) listQueueEntries(w http.ResponseWriter, req *http.Request) {
 	userIDStr, ok := req.Context().Value(contextKeyUserID).(string)
@@ -315,7 +315,7 @@ func (r *Router) listQueueEntries(w http.ResponseWriter, req *http.Request) {
 // @Security     BearerAuth
 // @Param        id       path  string  true  "방 ID"
 // @Param        entryId  path  string  true  "대기 ID"
-// @Success      200  {object}  map[string]string
+// @Success      200  {object}  QueueEntryResponse
 // @Router       /api/rooms/{id}/queue/{entryId} [delete]
 func (r *Router) cancelQueueEntry(w http.ResponseWriter, req *http.Request) {
 	userIDStr, ok := req.Context().Value(contextKeyUserID).(string)

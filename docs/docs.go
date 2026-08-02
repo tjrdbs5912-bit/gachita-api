@@ -34,7 +34,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_adapter_http.loginRequest"
+                            "$ref": "#/definitions/httpadapter.loginRequest"
                         }
                     }
                 ],
@@ -42,10 +42,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/LoginResponse"
                         }
                     }
                 }
@@ -70,7 +67,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_adapter_http.signUpRequest"
+                            "$ref": "#/definitions/httpadapter.signUpRequest"
                         }
                     }
                 ],
@@ -78,10 +75,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/UserResponse"
                         }
                     }
                 }
@@ -105,10 +99,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/UserResponse"
                         }
                     }
                 }
@@ -134,10 +125,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "object",
-                                "additionalProperties": {
-                                    "type": "string"
-                                }
+                                "$ref": "#/definitions/NotificationResponse"
                             }
                         }
                     }
@@ -162,10 +150,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/MessageResponse"
                         }
                     }
                 }
@@ -198,10 +183,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/NotificationResponse"
                         }
                     }
                 }
@@ -231,7 +213,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_adapter_http.createRoomRequest"
+                            "$ref": "#/definitions/httpadapter.createRoomRequest"
                         }
                     }
                 ],
@@ -239,10 +221,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/RoomResponse"
                         }
                     }
                 }
@@ -272,7 +251,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_adapter_http.joinRoomRequest"
+                            "$ref": "#/definitions/httpadapter.joinRoomRequest"
                         }
                     }
                 ],
@@ -280,10 +259,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/JoinRoomResponse"
                         }
                     }
                 }
@@ -316,8 +292,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/RoomDetailResponse"
                         }
                     }
                 }
@@ -352,10 +327,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "object",
-                                "additionalProperties": {
-                                    "type": "string"
-                                }
+                                "$ref": "#/definitions/MatchResponse"
                             }
                         }
                     }
@@ -396,8 +368,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/MatchDetailResponse"
                         }
                     }
                 }
@@ -432,10 +403,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "object",
-                                "additionalProperties": {
-                                    "type": "string"
-                                }
+                                "$ref": "#/definitions/QueueEntryResponse"
                             }
                         }
                     }
@@ -471,7 +439,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_adapter_http.createQueueEntryRequest"
+                            "$ref": "#/definitions/httpadapter.createQueueEntryRequest"
                         }
                     }
                 ],
@@ -479,10 +447,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/QueueEntryResponse"
                         }
                     }
                 }
@@ -522,10 +487,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/QueueEntryResponse"
                         }
                     }
                 }
@@ -560,10 +522,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "object",
-                                "additionalProperties": {
-                                    "type": "string"
-                                }
+                                "$ref": "#/definitions/HubStopResponse"
                             }
                         }
                     }
@@ -599,7 +558,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_adapter_http.createHubStopRequest"
+                            "$ref": "#/definitions/httpadapter.createHubStopRequest"
                         }
                     }
                 ],
@@ -607,10 +566,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/HubStopResponse"
                         }
                     }
                 }
@@ -654,7 +610,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_adapter_http.updateHubStopRequest"
+                            "$ref": "#/definitions/httpadapter.updateHubStopRequest"
                         }
                     }
                 ],
@@ -662,10 +618,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/HubStopResponse"
                         }
                     }
                 }
@@ -703,10 +656,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/MessageResponse"
                         }
                     }
                 }
@@ -714,7 +664,264 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "internal_adapter_http.createHubStopRequest": {
+        "HubStopResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "room_id": {
+                    "type": "string"
+                },
+                "sort_order": {
+                    "type": "string"
+                }
+            }
+        },
+        "JoinRoomResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "invite_code": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "LoginResponse": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "token_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "MatchDetailResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "members": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/MatchMemberResponse"
+                    }
+                },
+                "room_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "MatchMemberResponse": {
+            "type": "object",
+            "properties": {
+                "from_stop_id": {
+                    "type": "string"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "queue_entry_id": {
+                    "type": "string"
+                },
+                "time_end": {
+                    "type": "string"
+                },
+                "time_start": {
+                    "type": "string"
+                },
+                "to_stop_id": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "MatchResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "room_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "MessageResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "NotificationResponse": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "read_at": {
+                    "type": "string"
+                },
+                "ref_id": {
+                    "type": "string"
+                },
+                "ref_type": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "QueueEntryResponse": {
+            "type": "object",
+            "properties": {
+                "from_stop_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "match_id": {
+                    "type": "string"
+                },
+                "max_seats": {
+                    "type": "string"
+                },
+                "min_seats": {
+                    "type": "string"
+                },
+                "room_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "time_end": {
+                    "type": "string"
+                },
+                "time_start": {
+                    "type": "string"
+                },
+                "to_stop_id": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "RoomDetailResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "invite_code": {
+                    "type": "string"
+                },
+                "members": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/RoomMemberResponse"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "openchat_url": {
+                    "type": "string"
+                },
+                "owner_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "RoomMemberResponse": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "RoomResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "invite_code": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "openchat_url": {
+                    "type": "string"
+                },
+                "owner_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "UserResponse": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "nickname": {
+                    "type": "string"
+                }
+            }
+        },
+        "httpadapter.createHubStopRequest": {
             "type": "object",
             "properties": {
                 "name": {
@@ -725,7 +932,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_adapter_http.createQueueEntryRequest": {
+        "httpadapter.createQueueEntryRequest": {
             "type": "object",
             "properties": {
                 "from_stop_id": {
@@ -748,7 +955,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_adapter_http.createRoomRequest": {
+        "httpadapter.createRoomRequest": {
             "type": "object",
             "properties": {
                 "name": {
@@ -759,7 +966,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_adapter_http.joinRoomRequest": {
+        "httpadapter.joinRoomRequest": {
             "type": "object",
             "properties": {
                 "invite_code": {
@@ -767,7 +974,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_adapter_http.loginRequest": {
+        "httpadapter.loginRequest": {
             "type": "object",
             "properties": {
                 "email": {
@@ -778,7 +985,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_adapter_http.signUpRequest": {
+        "httpadapter.signUpRequest": {
             "type": "object",
             "properties": {
                 "email": {
@@ -792,7 +999,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_adapter_http.updateHubStopRequest": {
+        "httpadapter.updateHubStopRequest": {
             "type": "object",
             "properties": {
                 "name": {

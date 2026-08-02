@@ -1,13 +1,180 @@
 basePath: /
 definitions:
-  internal_adapter_http.createHubStopRequest:
+  HubStopResponse:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      room_id:
+        type: string
+      sort_order:
+        type: string
+    type: object
+  JoinRoomResponse:
+    properties:
+      id:
+        type: string
+      invite_code:
+        type: string
+      name:
+        type: string
+    type: object
+  LoginResponse:
+    properties:
+      access_token:
+        type: string
+      token_type:
+        type: string
+    type: object
+  MatchDetailResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      members:
+        items:
+          $ref: '#/definitions/MatchMemberResponse'
+        type: array
+      room_id:
+        type: string
+      status:
+        type: string
+    type: object
+  MatchMemberResponse:
+    properties:
+      from_stop_id:
+        type: string
+      nickname:
+        type: string
+      queue_entry_id:
+        type: string
+      time_end:
+        type: string
+      time_start:
+        type: string
+      to_stop_id:
+        type: string
+      user_id:
+        type: string
+    type: object
+  MatchResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      room_id:
+        type: string
+      status:
+        type: string
+    type: object
+  MessageResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  NotificationResponse:
+    properties:
+      body:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      read_at:
+        type: string
+      ref_id:
+        type: string
+      ref_type:
+        type: string
+      title:
+        type: string
+      type:
+        type: string
+    type: object
+  QueueEntryResponse:
+    properties:
+      from_stop_id:
+        type: string
+      id:
+        type: string
+      match_id:
+        type: string
+      max_seats:
+        type: string
+      min_seats:
+        type: string
+      room_id:
+        type: string
+      status:
+        type: string
+      time_end:
+        type: string
+      time_start:
+        type: string
+      to_stop_id:
+        type: string
+      user_id:
+        type: string
+    type: object
+  RoomDetailResponse:
+    properties:
+      id:
+        type: string
+      invite_code:
+        type: string
+      members:
+        items:
+          $ref: '#/definitions/RoomMemberResponse'
+        type: array
+      name:
+        type: string
+      openchat_url:
+        type: string
+      owner_id:
+        type: string
+    type: object
+  RoomMemberResponse:
+    properties:
+      email:
+        type: string
+      nickname:
+        type: string
+      user_id:
+        type: string
+    type: object
+  RoomResponse:
+    properties:
+      id:
+        type: string
+      invite_code:
+        type: string
+      name:
+        type: string
+      openchat_url:
+        type: string
+      owner_id:
+        type: string
+    type: object
+  UserResponse:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+      nickname:
+        type: string
+    type: object
+  httpadapter.createHubStopRequest:
     properties:
       name:
         type: string
       sort_order:
         type: integer
     type: object
-  internal_adapter_http.createQueueEntryRequest:
+  httpadapter.createQueueEntryRequest:
     properties:
       from_stop_id:
         type: string
@@ -22,26 +189,26 @@ definitions:
       to_stop_id:
         type: string
     type: object
-  internal_adapter_http.createRoomRequest:
+  httpadapter.createRoomRequest:
     properties:
       name:
         type: string
       openchat_url:
         type: string
     type: object
-  internal_adapter_http.joinRoomRequest:
+  httpadapter.joinRoomRequest:
     properties:
       invite_code:
         type: string
     type: object
-  internal_adapter_http.loginRequest:
+  httpadapter.loginRequest:
     properties:
       email:
         type: string
       password:
         type: string
     type: object
-  internal_adapter_http.signUpRequest:
+  httpadapter.signUpRequest:
     properties:
       email:
         type: string
@@ -50,7 +217,7 @@ definitions:
       password:
         type: string
     type: object
-  internal_adapter_http.updateHubStopRequest:
+  httpadapter.updateHubStopRequest:
     properties:
       name:
         type: string
@@ -74,16 +241,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/internal_adapter_http.loginRequest'
+          $ref: '#/definitions/httpadapter.loginRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/LoginResponse'
       summary: 로그인
       tags:
       - auth
@@ -97,16 +262,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/internal_adapter_http.signUpRequest'
+          $ref: '#/definitions/httpadapter.signUpRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/UserResponse'
       summary: 회원가입
       tags:
       - auth
@@ -118,9 +281,7 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/UserResponse'
       security:
       - BearerAuth: []
       summary: 내 정보 조회
@@ -135,9 +296,7 @@ paths:
           description: OK
           schema:
             items:
-              additionalProperties:
-                type: string
-              type: object
+              $ref: '#/definitions/NotificationResponse'
             type: array
       security:
       - BearerAuth: []
@@ -158,9 +317,7 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/NotificationResponse'
       security:
       - BearerAuth: []
       summary: 알림 읽음 처리
@@ -174,9 +331,7 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/MessageResponse'
       security:
       - BearerAuth: []
       summary: 알림 전체 읽음 처리
@@ -192,16 +347,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/internal_adapter_http.createRoomRequest'
+          $ref: '#/definitions/httpadapter.createRoomRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/RoomResponse'
       security:
       - BearerAuth: []
       summary: 방 생성
@@ -221,8 +374,7 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/RoomDetailResponse'
       security:
       - BearerAuth: []
       summary: 방 조회
@@ -243,9 +395,7 @@ paths:
           description: OK
           schema:
             items:
-              additionalProperties:
-                type: string
-              type: object
+              $ref: '#/definitions/MatchResponse'
             type: array
       security:
       - BearerAuth: []
@@ -271,8 +421,7 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/MatchDetailResponse'
       security:
       - BearerAuth: []
       summary: 매칭 상세 (멤버 포함)
@@ -293,9 +442,7 @@ paths:
           description: OK
           schema:
             items:
-              additionalProperties:
-                type: string
-              type: object
+              $ref: '#/definitions/QueueEntryResponse'
             type: array
       security:
       - BearerAuth: []
@@ -316,16 +463,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/internal_adapter_http.createQueueEntryRequest'
+          $ref: '#/definitions/httpadapter.createQueueEntryRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/QueueEntryResponse'
       security:
       - BearerAuth: []
       summary: 매칭 대기 등록
@@ -350,9 +495,7 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/QueueEntryResponse'
       security:
       - BearerAuth: []
       summary: 매칭 대기 취소
@@ -373,9 +516,7 @@ paths:
           description: OK
           schema:
             items:
-              additionalProperties:
-                type: string
-              type: object
+              $ref: '#/definitions/HubStopResponse'
             type: array
       security:
       - BearerAuth: []
@@ -396,16 +537,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/internal_adapter_http.createHubStopRequest'
+          $ref: '#/definitions/httpadapter.createHubStopRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/HubStopResponse'
       security:
       - BearerAuth: []
       summary: 거점 추가
@@ -430,9 +569,7 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/MessageResponse'
       security:
       - BearerAuth: []
       summary: 거점 삭제
@@ -457,16 +594,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/internal_adapter_http.updateHubStopRequest'
+          $ref: '#/definitions/httpadapter.updateHubStopRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/HubStopResponse'
       security:
       - BearerAuth: []
       summary: 거점 수정
@@ -482,16 +617,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/internal_adapter_http.joinRoomRequest'
+          $ref: '#/definitions/httpadapter.joinRoomRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/JoinRoomResponse'
       security:
       - BearerAuth: []
       summary: 방 입장

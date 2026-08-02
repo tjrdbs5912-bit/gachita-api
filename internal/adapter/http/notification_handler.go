@@ -37,7 +37,7 @@ func notificationToMap(n db.Notification) map[string]string {
 // @Tags         notification
 // @Produce      json
 // @Security     BearerAuth
-// @Success      200  {array}  map[string]string
+// @Success      200  {array}   NotificationResponse
 // @Router       /api/notifications [get]
 func (r *Router) listNotifications(w http.ResponseWriter, req *http.Request) {
 	userIDStr, ok := req.Context().Value(contextKeyUserID).(string)
@@ -70,7 +70,7 @@ func (r *Router) listNotifications(w http.ResponseWriter, req *http.Request) {
 // @Produce      json
 // @Security     BearerAuth
 // @Param        notificationId  path  string  true  "알림 ID"
-// @Success      200  {object}  map[string]string
+// @Success      200  {object}  NotificationResponse
 // @Router       /api/notifications/{notificationId}/read [put]
 func (r *Router) readNotification(w http.ResponseWriter, req *http.Request) {
 	userIDStr, ok := req.Context().Value(contextKeyUserID).(string)
@@ -107,7 +107,7 @@ func (r *Router) readNotification(w http.ResponseWriter, req *http.Request) {
 // @Tags         notification
 // @Produce      json
 // @Security     BearerAuth
-// @Success      200  {object}  map[string]string
+// @Success      200  {object}  MessageResponse
 // @Router       /api/notifications/read-all [put]
 func (r *Router) readAllNotifications(w http.ResponseWriter, req *http.Request) {
 	userIDStr, ok := req.Context().Value(contextKeyUserID).(string)

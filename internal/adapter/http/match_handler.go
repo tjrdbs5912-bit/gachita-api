@@ -15,7 +15,7 @@ import (
 // @Produce      json
 // @Security     BearerAuth
 // @Param        id   path  string  true  "방 ID"
-// @Success      200  {array}  map[string]string
+// @Success      200  {array}   MatchResponse
 // @Router       /api/rooms/{id}/matches [get]
 func (r *Router) listMatches(w http.ResponseWriter, req *http.Request) {
 	userIDStr, ok := req.Context().Value(contextKeyUserID).(string)
@@ -69,7 +69,7 @@ func (r *Router) listMatches(w http.ResponseWriter, req *http.Request) {
 // @Security     BearerAuth
 // @Param        id       path  string  true  "방 ID"
 // @Param        matchId  path  string  true  "매칭 ID"
-// @Success      200  {object}  map[string]interface{}
+// @Success      200  {object}  MatchDetailResponse
 // @Router       /api/rooms/{id}/matches/{matchId} [get]
 func (r *Router) getMatch(w http.ResponseWriter, req *http.Request) {
 	userIDStr, ok := req.Context().Value(contextKeyUserID).(string)

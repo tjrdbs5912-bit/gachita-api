@@ -24,7 +24,7 @@ type createRoomRequest struct {
 // @Produce      json
 // @Security     BearerAuth
 // @Param        body  body  createRoomRequest  true  "방 정보"
-// @Success      201  {object}  map[string]string
+// @Success      201  {object}  RoomResponse
 // @Router       /api/rooms [post]
 func (r *Router) createRoom(w http.ResponseWriter, req *http.Request) {
 	var body createRoomRequest
@@ -105,7 +105,7 @@ type joinRoomRequest struct {
 // @Produce      json
 // @Security     BearerAuth
 // @Param        body  body  joinRoomRequest  true  "초대 코드"
-// @Success      200  {object}  map[string]string
+// @Success      200  {object}  JoinRoomResponse
 // @Router       /api/rooms/join [post]
 func (r *Router) joinRoom(w http.ResponseWriter, req *http.Request) {
 	var body joinRoomRequest
@@ -162,7 +162,7 @@ func (r *Router) joinRoom(w http.ResponseWriter, req *http.Request) {
 // @Produce      json
 // @Security     BearerAuth
 // @Param        id   path  string  true  "방 ID"
-// @Success      200  {object}  map[string]interface{}
+// @Success      200  {object}  RoomDetailResponse
 // @Router       /api/rooms/{id} [get]
 func (r *Router) getRoom(w http.ResponseWriter, req *http.Request) {
 	userIDStr, ok := req.Context().Value(contextKeyUserID).(string)

@@ -11,7 +11,7 @@ import (
 // @Tags         user
 // @Produce      json
 // @Security     BearerAuth
-// @Success      200  {object}  map[string]string
+// @Success      200  {object}  UserResponse
 // @Router       /api/me [get]
 func (r *Router) getMe(w http.ResponseWriter, req *http.Request) {
 	userIDStr, ok := req.Context().Value(contextKeyUserID).(string)

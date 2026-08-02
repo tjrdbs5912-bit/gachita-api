@@ -22,7 +22,7 @@ type signUpRequest struct {
 // @Accept       json
 // @Produce      json
 // @Param        body  body  signUpRequest  true  "가입 정보"
-// @Success      201  {object}  map[string]string
+// @Success      201  {object}  UserResponse
 // @Router       /api/auth/signup [post]
 func (r *Router) signUp(w http.ResponseWriter, req *http.Request) {
 	var body signUpRequest
@@ -75,7 +75,7 @@ type loginRequest struct {
 // @Accept       json
 // @Produce      json
 // @Param        body  body  loginRequest  true  "로그인 정보"
-// @Success      200  {object}  map[string]string
+// @Success      200  {object}  LoginResponse
 // @Router       /api/auth/login [post]
 func (r *Router) login(w http.ResponseWriter, req *http.Request) {
 	var body loginRequest

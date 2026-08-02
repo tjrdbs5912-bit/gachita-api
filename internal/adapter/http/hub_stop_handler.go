@@ -22,7 +22,7 @@ type createHubStopRequest struct {
 // @Security     BearerAuth
 // @Param        id    path  string  true  "방 ID"
 // @Param        body  body  createHubStopRequest  true  "거점 정보"
-// @Success      201  {object}  map[string]string
+// @Success      201  {object}  HubStopResponse
 // @Router       /api/rooms/{id}/stops [post]
 func (r *Router) createHubStop(w http.ResponseWriter, req *http.Request) {
 	userIDStr, ok := req.Context().Value(contextKeyUserID).(string)
@@ -91,7 +91,7 @@ func (r *Router) createHubStop(w http.ResponseWriter, req *http.Request) {
 // @Produce      json
 // @Security     BearerAuth
 // @Param        id   path  string  true  "방 ID"
-// @Success      200  {array}  map[string]string
+// @Success      200  {array}   HubStopResponse
 // @Router       /api/rooms/{id}/stops [get]
 func (r *Router) listHubStops(w http.ResponseWriter, req *http.Request) {
 	userIDStr, ok := req.Context().Value(contextKeyUserID).(string)
@@ -152,7 +152,7 @@ type updateHubStopRequest struct {
 // @Param        id      path  string  true  "방 ID"
 // @Param        stopId  path  string  true  "거점 ID"
 // @Param        body    body  updateHubStopRequest  true  "거점 정보"
-// @Success      200  {object}  map[string]string
+// @Success      200  {object}  HubStopResponse
 // @Router       /api/rooms/{id}/stops/{stopId} [put]
 func (r *Router) updateHubStop(w http.ResponseWriter, req *http.Request) {
 	userIDStr, ok := req.Context().Value(contextKeyUserID).(string)
@@ -228,7 +228,7 @@ func (r *Router) updateHubStop(w http.ResponseWriter, req *http.Request) {
 // @Security     BearerAuth
 // @Param        id      path  string  true  "방 ID"
 // @Param        stopId  path  string  true  "거점 ID"
-// @Success      200  {object}  map[string]string
+// @Success      200  {object}  MessageResponse
 // @Router       /api/rooms/{id}/stops/{stopId} [delete]
 func (r *Router) deleteHubStop(w http.ResponseWriter, req *http.Request) {
 	userIDStr, ok := req.Context().Value(contextKeyUserID).(string)
