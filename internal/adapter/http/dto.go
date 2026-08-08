@@ -206,6 +206,44 @@ func toQueueEntryResponse(e db.QueueEntry) QueueEntryResponse {
 	}
 }
 
+func queueEntryFromActiveRow(e db.ListMyActiveQueueEntriesRow) QueueEntryResponse {
+	resp := QueueEntryResponse{
+		ID:         e.ID.String(),
+		RoomID:     e.RoomID.String(),
+		UserID:     e.UserID.String(),
+		FromStopID: e.FromStopID.String(),
+		ToStopID:   e.ToStopID.String(),
+		TimeStart:  e.TimeStart.Time.Format(time.RFC3339),
+		TimeEnd:    e.TimeEnd.Time.Format(time.RFC3339),
+		MinSeats:   e.MinSeats,
+		MaxSeats:   e.MaxSeats,
+		Status:     e.Status,
+	}
+	if e.MatchID.Valid {
+		resp.MatchID = strPtr(e.MatchID.String())
+	}
+	return resp
+}
+
+func queueEntryFromRoomRow(e db.GetQueueEntryByRoomIDRow) QueueEntryResponse {
+	resp := QueueEntryResponse{
+		ID:         e.ID.String(),
+		RoomID:     e.RoomID.String(),
+		UserID:     e.UserID.String(),
+		FromStopID: e.FromStopID.String(),
+		ToStopID:   e.ToStopID.String(),
+		TimeStart:  e.TimeStart.Time.Format(time.RFC3339),
+		TimeEnd:    e.TimeEnd.Time.Format(time.RFC3339),
+		MinSeats:   e.MinSeats,
+		MaxSeats:   e.MaxSeats,
+		Status:     e.Status,
+	}
+	if e.MatchID.Valid {
+		resp.MatchID = strPtr(e.MatchID.String())
+	}
+	return resp
+}
+
 func toMatchResponse(m db.Match) MatchResponse {
 	return MatchResponse{
 		ID:        m.ID.String(),

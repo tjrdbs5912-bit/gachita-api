@@ -424,6 +424,23 @@ paths:
       summary: 내 정보 조회
       tags:
       - user
+  /api/me/queue:
+    get:
+      description: 현재 사용자의 waiting/matched 대기열을 반환합니다. StatusBar용.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/QueueEntryResponse'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: 내 활성 대기 목록
+      tags:
+      - queue
   /api/notifications:
     get:
       produces:
@@ -651,6 +668,31 @@ paths:
       security:
       - BearerAuth: []
       summary: 매칭 대기 취소
+      tags:
+      - queue
+    get:
+      description: 방의 대기열 entry를 조회합니다. 방 멤버만 가능합니다.
+      parameters:
+      - description: 방 ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 대기 ID
+        in: path
+        name: entryId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/QueueEntryResponse'
+      security:
+      - BearerAuth: []
+      summary: 대기 단건 조회
       tags:
       - queue
   /api/rooms/{id}/stops:

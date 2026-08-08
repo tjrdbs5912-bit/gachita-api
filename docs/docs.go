@@ -105,6 +105,34 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/me/queue": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "현재 사용자의 waiting/matched 대기열을 반환합니다. StatusBar용.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "queue"
+                ],
+                "summary": "내 활성 대기 목록",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/QueueEntryResponse"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/notifications": {
             "get": {
                 "security": [
@@ -479,6 +507,45 @@ const docTemplate = `{
             }
         },
         "/api/rooms/{id}/queue/{entryId}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "방의 대기열 entry를 조회합니다. 방 멤버만 가능합니다.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "queue"
+                ],
+                "summary": "대기 단건 조회",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "방 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "대기 ID",
+                        "name": "entryId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/QueueEntryResponse"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "security": [
                     {

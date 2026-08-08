@@ -111,6 +111,134 @@ func (q *Queries) GetQueueEntryByID(ctx context.Context, id pgtype.UUID) (QueueE
 	return i, err
 }
 
+const getQueueEntryByRoomID = `-- name: GetQueueEntryByRoomID :one
+SELECT
+  qe.id,
+  qe.room_id,
+  qe.user_id,
+  qe.from_stop_id,
+  qe.to_stop_id,
+  qe.time_start,
+  qe.time_end,
+  qe.min_seats,
+  qe.max_seats,
+  qe.status,
+  qe.created_at,
+  mm.match_id
+FROM queue_entries qe
+LEFT JOIN match_members mm ON mm.queue_entry_id = qe.id AND mm.user_id = qe.user_id
+WHERE qe.id = $1 AND qe.room_id = $2
+`
+
+type GetQueueEntryByRoomIDParams struct {
+	ID     pgtype.UUID
+	RoomID pgtype.UUID
+}
+
+type GetQueueEntryByRoomIDRow struct {
+	ID         pgtype.UUID
+	RoomID     pgtype.UUID
+	UserID     pgtype.UUID
+	FromStopID pgtype.UUID
+	ToStopID   pgtype.UUID
+	TimeStart  pgtype.Timestamptz
+	TimeEnd    pgtype.Timestamptz
+	MinSeats   int32
+	MaxSeats   int32
+	Status     string
+	CreatedAt  pgtype.Timestamptz
+	MatchID    pgtype.UUID
+}
+
+func (q *Queries) GetQueueEntryByRoomID(ctx context.Context, arg GetQueueEntryByRoomIDParams) (GetQueueEntryByRoomIDRow, error) {
+	row := q.db.QueryRow(ctx, getQueueEntryByRoomID, arg.ID, arg.RoomID)
+	var i GetQueueEntryByRoomIDRow
+	err := row.Scan(
+		&i.ID,
+		&i.RoomID,
+		&i.UserID,
+		&i.FromStopID,
+		&i.ToStopID,
+		&i.TimeStart,
+		&i.TimeEnd,
+		&i.MinSeats,
+		&i.MaxSeats,
+		&i.Status,
+		&i.CreatedAt,
+		&i.MatchID,
+	)
+	return i, err
+}
+
+const listMyActiveQueueEntries = `-- name: ListMyActiveQueueEntries :many
+SELECT
+  qe.id,
+  qe.room_id,
+  qe.user_id,
+  qe.from_stop_id,
+  qe.to_stop_id,
+  qe.time_start,
+  qe.time_end,
+  qe.min_seats,
+  qe.max_seats,
+  qe.status,
+  qe.created_at,
+  mm.match_id
+FROM queue_entries qe
+LEFT JOIN match_members mm ON mm.queue_entry_id = qe.id AND mm.user_id = qe.user_id
+WHERE qe.user_id = $1
+  AND qe.status IN ('waiting', 'matched')
+ORDER BY qe.created_at DESC
+`
+
+type ListMyActiveQueueEntriesRow struct {
+	ID         pgtype.UUID
+	RoomID     pgtype.UUID
+	UserID     pgtype.UUID
+	FromStopID pgtype.UUID
+	ToStopID   pgtype.UUID
+	TimeStart  pgtype.Timestamptz
+	TimeEnd    pgtype.Timestamptz
+	MinSeats   int32
+	MaxSeats   int32
+	Status     string
+	CreatedAt  pgtype.Timestamptz
+	MatchID    pgtype.UUID
+}
+
+func (q *Queries) ListMyActiveQueueEntries(ctx context.Context, userID pgtype.UUID) ([]ListMyActiveQueueEntriesRow, error) {
+	rows, err := q.db.Query(ctx, listMyActiveQueueEntries, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListMyActiveQueueEntriesRow
+	for rows.Next() {
+		var i ListMyActiveQueueEntriesRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.RoomID,
+			&i.UserID,
+			&i.FromStopID,
+			&i.ToStopID,
+			&i.TimeStart,
+			&i.TimeEnd,
+			&i.MinSeats,
+			&i.MaxSeats,
+			&i.Status,
+			&i.CreatedAt,
+			&i.MatchID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listWaitingQueueEntriesByRoomID = `-- name: ListWaitingQueueEntriesByRoomID :many
 SELECT id, room_id, user_id, from_stop_id, to_stop_id, time_start, time_end, min_seats, max_seats, status, created_at FROM queue_entries
 WHERE room_id = $1 AND status = 'waiting'

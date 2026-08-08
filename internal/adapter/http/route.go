@@ -32,6 +32,7 @@ func NewRouter(pool *pgxpool.Pool, queries *db.Queries, tokens *auth.TokenServic
 
 	// 인증 필요
 	mux.Handle("GET /api/me", r.authMiddleware(http.HandlerFunc(r.getMe)))
+	mux.Handle("GET /api/me/queue", r.authMiddleware(http.HandlerFunc(r.listMyQueueEntries)))
 	mux.Handle("GET /api/rooms", r.authMiddleware(http.HandlerFunc(r.listRooms)))
 	mux.Handle("POST /api/rooms", r.authMiddleware(http.HandlerFunc(r.createRoom)))
 	mux.Handle("POST /api/rooms/join", r.authMiddleware(http.HandlerFunc(r.joinRoom)))
@@ -42,6 +43,7 @@ func NewRouter(pool *pgxpool.Pool, queries *db.Queries, tokens *auth.TokenServic
 	mux.Handle("DELETE /api/rooms/{id}/stops/{stopId}", r.authMiddleware(http.HandlerFunc(r.deleteHubStop)))
 	mux.Handle("POST /api/rooms/{id}/queue", r.authMiddleware(http.HandlerFunc(r.createQueueEntry)))
 	mux.Handle("GET /api/rooms/{id}/queue", r.authMiddleware(http.HandlerFunc(r.listQueueEntries)))
+	mux.Handle("GET /api/rooms/{id}/queue/{entryId}", r.authMiddleware(http.HandlerFunc(r.getQueueEntry)))
 	mux.Handle("DELETE /api/rooms/{id}/queue/{entryId}", r.authMiddleware(http.HandlerFunc(r.cancelQueueEntry)))
 	mux.Handle("GET /api/rooms/{id}/matches", r.authMiddleware(http.HandlerFunc(r.listMatches)))
 	mux.Handle("GET /api/rooms/{id}/matches/{matchId}", r.authMiddleware(http.HandlerFunc(r.getMatch)))
