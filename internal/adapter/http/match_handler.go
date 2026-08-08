@@ -50,14 +50,9 @@ func (r *Router) listMatches(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	list := make([]map[string]string, 0, len(matches))
+	list := make([]MatchResponse, 0, len(matches))
 	for _, m := range matches {
-		list = append(list, map[string]string{
-			"id":         m.ID.String(),
-			"room_id":    m.RoomID.String(),
-			"status":     m.Status,
-			"created_at": m.CreatedAt.Time.Format(time.RFC3339),
-		})
+		list = append(list, toMatchResponse(m))
 	}
 	writeJSON(w, http.StatusOK, list)
 }
@@ -116,24 +111,24 @@ func (r *Router) getMatch(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	memberList := make([]map[string]string, 0, len(members))
+	memberList := make([]MatchMemberResponse, 0, len(members))
 	for _, m := range members {
-		memberList = append(memberList, map[string]string{
-			"user_id":        m.UserID.String(),
-			"nickname":       m.Nickname,
-			"queue_entry_id": m.QueueEntryID.String(),
-			"from_stop_id":   m.FromStopID.String(),
-			"to_stop_id":     m.ToStopID.String(),
-			"time_start":     m.TimeStart.Time.Format(time.RFC3339),
-			"time_end":       m.TimeEnd.Time.Format(time.RFC3339),
+		memberList = append(memberList, MatchMemberResponse{
+			UserID:       m.UserID.String(),
+			Nickname:     m.Nickname,
+			QueueEntryID: m.QueueEntryID.String(),
+			FromStopID:   m.FromStopID.String(),
+			ToStopID:     m.ToStopID.String(),
+			TimeStart:    m.TimeStart.Time.Format(time.RFC3339),
+			TimeEnd:      m.TimeEnd.Time.Format(time.RFC3339),
 		})
 	}
 
-	writeJSON(w, http.StatusOK, map[string]interface{}{
-		"id":         match.ID.String(),
-		"room_id":    match.RoomID.String(),
-		"status":     match.Status,
-		"created_at": match.CreatedAt.Time.Format(time.RFC3339),
-		"members":    memberList,
+	writeJSON(w, http.StatusOK, MatchDetailResponse{
+		ID:        match.ID.String(),
+		RoomID:    match.RoomID.String(),
+		Status:    match.Status,
+		CreatedAt: match.CreatedAt.Time.Format(time.RFC3339),
+		Members:   memberList,
 	})
 }

@@ -12,22 +12,17 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type createRoomRequest struct {
-	Name        string `json:"name"`
-	OpenchatUrl string `json:"openchat_url"`
-}
-
 // CreateRoom godoc
 // @Summary      방 생성
 // @Tags         room
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        body  body  createRoomRequest  true  "방 정보"
+// @Param        body  body  CreateRoomRequest  true  "방 정보"
 // @Success      201  {object}  RoomResponse
 // @Router       /api/rooms [post]
 func (r *Router) createRoom(w http.ResponseWriter, req *http.Request) {
-	var body createRoomRequest
+	var body CreateRoomRequest
 	if err := decodeJSON(req, &body); err != nil {
 		writeError(w, http.StatusBadRequest, "invalid json")
 		return
@@ -56,14 +51,15 @@ func (r *Router) createRoom(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	var openchat pgtype.Text
+	if body.OpenchatURL != nil && *body.OpenchatURL != "" {
+		openchat = pgtype.Text{String: *body.OpenchatURL, Valid: true}
+	}
 	room, err := r.queries.CreateRoom(req.Context(), db.CreateRoomParams{
-		Name:       body.Name,
-		InviteCode: inviteCode,
-		OpenchatUrl: pgtype.Text{
-			String: body.OpenchatUrl,
-			Valid:  body.OpenchatUrl != "",
-		},
-		OwnerID: ownerID,
+		Name:        body.Name,
+		InviteCode:  inviteCode,
+		OpenchatUrl: openchat,
+		OwnerID:     ownerID,
 	})
 	if err != nil {
 		var pgErr *pgconn.PgError
@@ -84,18 +80,8 @@ func (r *Router) createRoom(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusCreated, map[string]string{
-		"id":           room.ID.String(),
-		"name":         room.Name,
-		"invite_code":  room.InviteCode,
-		"openchat_url": room.OpenchatUrl.String,
-		"owner_id":     room.OwnerID.String(),
-	})
+	writeJSON(w, http.StatusCreated, toRoomResponse(room))
 
-}
-
-type joinRoomRequest struct {
-	InviteCode string `json:"invite_code"`
 }
 
 // JoinRoom godoc
@@ -104,11 +90,11 @@ type joinRoomRequest struct {
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        body  body  joinRoomRequest  true  "초대 코드"
+// @Param        body  body  JoinRoomRequest  true  "초대 코드"
 // @Success      200  {object}  JoinRoomResponse
 // @Router       /api/rooms/join [post]
 func (r *Router) joinRoom(w http.ResponseWriter, req *http.Request) {
-	var body joinRoomRequest
+	var body JoinRoomRequest
 	if err := decodeJSON(req, &body); err != nil {
 		writeError(w, http.StatusBadRequest, "invalid json")
 		return
@@ -149,10 +135,10 @@ func (r *Router) joinRoom(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusOK, map[string]string{
-		"id":          room.ID.String(),
-		"name":        room.Name,
-		"invite_code": room.InviteCode,
+	writeJSON(w, http.StatusOK, JoinRoomResponse{
+		ID:         room.ID.String(),
+		Name:       room.Name,
+		InviteCode: room.InviteCode,
 	})
 }
 
@@ -204,22 +190,22 @@ func (r *Router) getRoom(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	memberList := make([]map[string]string, 0, len(members))
+	memberList := make([]RoomMemberResponse, 0, len(members))
 	for _, m := range members {
-		memberList = append(memberList, map[string]string{
-			"user_id":  m.UserID.String(),
-			"nickname": m.Nickname,
-			"email":    m.Email,
+		memberList = append(memberList, RoomMemberResponse{
+			UserID:   m.UserID.String(),
+			Nickname: m.Nickname,
+			Email:    m.Email,
 		})
 	}
 
-	writeJSON(w, http.StatusOK, map[string]interface{}{
-		"id":           room.ID.String(),
-		"name":         room.Name,
-		"invite_code":  room.InviteCode,
-		"openchat_url": room.OpenchatUrl.String,
-		"owner_id":     room.OwnerID.String(),
-		"members":      memberList,
+	writeJSON(w, http.StatusOK, RoomDetailResponse{
+		ID:          room.ID.String(),
+		Name:        room.Name,
+		InviteCode:  room.InviteCode,
+		OpenchatURL: textPtr(room.OpenchatUrl),
+		OwnerID:     room.OwnerID.String(),
+		Members:     memberList,
 	})
 }
 
@@ -248,15 +234,9 @@ func (r *Router) listRooms(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	list := make([]map[string]string, 0, len(rooms))
+	list := make([]RoomResponse, 0, len(rooms))
 	for _, room := range rooms {
-		list = append(list, map[string]string{
-			"id":           room.ID.String(),
-			"name":         room.Name,
-			"invite_code":  room.InviteCode,
-			"openchat_url": room.OpenchatUrl.String,
-			"owner_id":     room.OwnerID.String(),
-		})
+		list = append(list, toRoomResponse(room))
 	}
 	writeJSON(w, http.StatusOK, list)
 }

@@ -3,37 +3,11 @@ package httpadapter
 import (
 	"context"
 	"net/http"
-	"strconv"
-	"time"
 
 	"gachita-api/internal/db"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
-
-type createQueueEntryRequest struct {
-	FromStopID string    `json:"from_stop_id"`
-	ToStopID   string    `json:"to_stop_id"`
-	TimeStart  time.Time `json:"time_start"`
-	TimeEnd    time.Time `json:"time_end"`
-	MinSeats   *int32    `json:"min_seats"`
-	MaxSeats   *int32    `json:"max_seats"`
-}
-
-func queueEntryToMap(e db.QueueEntry) map[string]string {
-	return map[string]string{
-		"id":           e.ID.String(),
-		"room_id":      e.RoomID.String(),
-		"user_id":      e.UserID.String(),
-		"from_stop_id": e.FromStopID.String(),
-		"to_stop_id":   e.ToStopID.String(),
-		"time_start":   e.TimeStart.Time.Format(time.RFC3339),
-		"time_end":     e.TimeEnd.Time.Format(time.RFC3339),
-		"min_seats":    strconv.Itoa(int(e.MinSeats)),
-		"max_seats":    strconv.Itoa(int(e.MaxSeats)),
-		"status":       e.Status,
-	}
-}
 
 // CreateQueueEntry godoc
 // @Summary      매칭 대기 등록
@@ -42,7 +16,7 @@ func queueEntryToMap(e db.QueueEntry) map[string]string {
 // @Produce      json
 // @Security     BearerAuth
 // @Param        id    path  string  true  "방 ID"
-// @Param        body  body  createQueueEntryRequest  true  "대기 정보"
+// @Param        body  body  CreateQueueEntryRequest  true  "대기 정보"
 // @Success      201  {object}  QueueEntryResponse
 // @Router       /api/rooms/{id}/queue [post]
 func (r *Router) createQueueEntry(w http.ResponseWriter, req *http.Request) {
@@ -72,7 +46,7 @@ func (r *Router) createQueueEntry(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	var body createQueueEntryRequest
+	var body CreateQueueEntryRequest
 	if err := decodeJSON(req, &body); err != nil {
 		writeError(w, http.StatusBadRequest, "invalid json")
 		return
@@ -161,10 +135,10 @@ func (r *Router) createQueueEntry(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	resp := queueEntryToMap(entry)
+	resp := toQueueEntryResponse(entry)
 	if matched {
-		resp["status"] = "matched"
-		resp["match_id"] = match.ID.String()
+		resp.Status = "matched"
+		resp.MatchID = strPtr(match.ID.String())
 	}
 	writeJSON(w, http.StatusCreated, resp)
 }
@@ -301,9 +275,9 @@ func (r *Router) listQueueEntries(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	list := make([]map[string]string, 0, len(entries))
+	list := make([]QueueEntryResponse, 0, len(entries))
 	for _, e := range entries {
-		list = append(list, queueEntryToMap(e))
+		list = append(list, toQueueEntryResponse(e))
 	}
 	writeJSON(w, http.StatusOK, list)
 }
@@ -351,5 +325,5 @@ func (r *Router) cancelQueueEntry(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusOK, queueEntryToMap(entry))
+	writeJSON(w, http.StatusOK, toQueueEntryResponse(entry))
 }

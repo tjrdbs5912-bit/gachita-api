@@ -2,17 +2,11 @@ package httpadapter
 
 import (
 	"net/http"
-	"strconv"
 
 	"gachita-api/internal/db"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
-
-type createHubStopRequest struct {
-	Name      string `json:"name"`
-	SortOrder *int32 `json:"sort_order"`
-}
 
 // CreateHubStop godoc
 // @Summary      거점 추가
@@ -21,7 +15,7 @@ type createHubStopRequest struct {
 // @Produce      json
 // @Security     BearerAuth
 // @Param        id    path  string  true  "방 ID"
-// @Param        body  body  createHubStopRequest  true  "거점 정보"
+// @Param        body  body  CreateHubStopRequest  true  "거점 정보"
 // @Success      201  {object}  HubStopResponse
 // @Router       /api/rooms/{id}/stops [post]
 func (r *Router) createHubStop(w http.ResponseWriter, req *http.Request) {
@@ -52,7 +46,7 @@ func (r *Router) createHubStop(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	var body createHubStopRequest
+	var body CreateHubStopRequest
 	if err := decodeJSON(req, &body); err != nil {
 		writeError(w, http.StatusBadRequest, "invalid json")
 		return
@@ -77,12 +71,7 @@ func (r *Router) createHubStop(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusCreated, map[string]string{
-		"id":         stop.ID.String(),
-		"room_id":    stop.RoomID.String(),
-		"name":       stop.Name,
-		"sort_order": strconv.Itoa(int(stop.SortOrder)),
-	})
+	writeJSON(w, http.StatusCreated, toHubStopResponse(stop))
 }
 
 // ListHubStops godoc
@@ -126,21 +115,11 @@ func (r *Router) listHubStops(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	list := make([]map[string]string, 0, len(stops))
-	for _, s := range stops {
-		list = append(list, map[string]string{
-			"id":         s.ID.String(),
-			"room_id":    s.RoomID.String(),
-			"name":       s.Name,
-			"sort_order": strconv.Itoa(int(s.SortOrder)),
-		})
+	list := make([]HubStopResponse, 0, len(stops))
+	for _, stop := range stops {
+		list = append(list, toHubStopResponse(stop))
 	}
 	writeJSON(w, http.StatusOK, list)
-}
-
-type updateHubStopRequest struct {
-	Name      string `json:"name"`
-	SortOrder *int32 `json:"sort_order"`
 }
 
 // UpdateHubStop godoc
@@ -151,7 +130,7 @@ type updateHubStopRequest struct {
 // @Security     BearerAuth
 // @Param        id      path  string  true  "방 ID"
 // @Param        stopId  path  string  true  "거점 ID"
-// @Param        body    body  updateHubStopRequest  true  "거점 정보"
+// @Param        body    body  UpdateHubStopRequest  true  "거점 정보"
 // @Success      200  {object}  HubStopResponse
 // @Router       /api/rooms/{id}/stops/{stopId} [put]
 func (r *Router) updateHubStop(w http.ResponseWriter, req *http.Request) {
@@ -187,7 +166,7 @@ func (r *Router) updateHubStop(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	var body updateHubStopRequest
+	var body UpdateHubStopRequest
 	if err := decodeJSON(req, &body); err != nil {
 		writeError(w, http.StatusBadRequest, "invalid json")
 		return
@@ -213,12 +192,7 @@ func (r *Router) updateHubStop(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusOK, map[string]string{
-		"id":         stop.ID.String(),
-		"room_id":    stop.RoomID.String(),
-		"name":       stop.Name,
-		"sort_order": strconv.Itoa(int(stop.SortOrder)),
-	})
+	writeJSON(w, http.StatusOK, toHubStopResponse(stop))
 }
 
 // DeleteHubStop godoc
@@ -272,7 +246,5 @@ func (r *Router) deleteHubStop(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusOK, map[string]string{
-		"message": "거점이 삭제되었습니다.",
-	})
+	writeJSON(w, http.StatusOK, MessageResponse{Message: "거점이 삭제되었습니다."})
 }

@@ -10,22 +10,16 @@ import (
 	"gachita-api/internal/db"
 )
 
-type signUpRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	Nickname string `json:"nickname"`
-}
-
 // SignUp godoc
 // @Summary      회원가입
 // @Tags         auth
 // @Accept       json
 // @Produce      json
-// @Param        body  body  signUpRequest  true  "가입 정보"
+// @Param        body  body  SignUpRequest  true  "가입 정보"
 // @Success      201  {object}  UserResponse
 // @Router       /api/auth/signup [post]
 func (r *Router) signUp(w http.ResponseWriter, req *http.Request) {
-	var body signUpRequest
+	var body SignUpRequest
 	if err := decodeJSON(req, &body); err != nil {
 		writeError(w, http.StatusBadRequest, "invalid json")
 		return
@@ -57,16 +51,7 @@ func (r *Router) signUp(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusCreated, map[string]string{
-		"id":       user.ID.String(),
-		"email":    user.Email,
-		"nickname": user.Nickname,
-	})
-}
-
-type loginRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	writeJSON(w, http.StatusCreated, toUserResponse(user.ID.String(), user.Email, user.Nickname))
 }
 
 // Login godoc
@@ -74,11 +59,11 @@ type loginRequest struct {
 // @Tags         auth
 // @Accept       json
 // @Produce      json
-// @Param        body  body  loginRequest  true  "로그인 정보"
+// @Param        body  body  LoginRequest  true  "로그인 정보"
 // @Success      200  {object}  LoginResponse
 // @Router       /api/auth/login [post]
 func (r *Router) login(w http.ResponseWriter, req *http.Request) {
-	var body loginRequest
+	var body LoginRequest
 	if err := decodeJSON(req, &body); err != nil {
 		writeError(w, http.StatusBadRequest, "invalid json")
 		return
@@ -106,8 +91,8 @@ func (r *Router) login(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusOK, map[string]string{
-		"access_token": accessToken,
-		"token_type":   "Bearer",
+	writeJSON(w, http.StatusOK, LoginResponse{
+		AccessToken: accessToken,
+		TokenType:   "Bearer",
 	})
 }

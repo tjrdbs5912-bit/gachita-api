@@ -34,7 +34,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/httpadapter.loginRequest"
+                            "$ref": "#/definitions/LoginRequest"
                         }
                     }
                 ],
@@ -67,7 +67,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/httpadapter.signUpRequest"
+                            "$ref": "#/definitions/SignUpRequest"
                         }
                     }
                 ],
@@ -238,7 +238,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/httpadapter.createRoomRequest"
+                            "$ref": "#/definitions/CreateRoomRequest"
                         }
                     }
                 ],
@@ -276,7 +276,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/httpadapter.joinRoomRequest"
+                            "$ref": "#/definitions/JoinRoomRequest"
                         }
                     }
                 ],
@@ -464,7 +464,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/httpadapter.createQueueEntryRequest"
+                            "$ref": "#/definitions/CreateQueueEntryRequest"
                         }
                     }
                 ],
@@ -583,7 +583,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/httpadapter.createHubStopRequest"
+                            "$ref": "#/definitions/CreateHubStopRequest"
                         }
                     }
                 ],
@@ -635,7 +635,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/httpadapter.updateHubStopRequest"
+                            "$ref": "#/definitions/UpdateHubStopRequest"
                         }
                     }
                 ],
@@ -689,8 +689,85 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "CreateHubStopRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "example": "정문"
+                },
+                "sort_order": {
+                    "type": "integer",
+                    "x-nullable": true,
+                    "example": 0
+                }
+            }
+        },
+        "CreateQueueEntryRequest": {
+            "type": "object",
+            "required": [
+                "from_stop_id",
+                "time_end",
+                "time_start",
+                "to_stop_id"
+            ],
+            "properties": {
+                "from_stop_id": {
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                },
+                "max_seats": {
+                    "type": "integer",
+                    "x-nullable": true,
+                    "example": 4
+                },
+                "min_seats": {
+                    "type": "integer",
+                    "x-nullable": true,
+                    "example": 2
+                },
+                "time_end": {
+                    "type": "string",
+                    "example": "2026-08-02T10:00:00Z"
+                },
+                "time_start": {
+                    "type": "string",
+                    "example": "2026-08-02T09:00:00Z"
+                },
+                "to_stop_id": {
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440001"
+                }
+            }
+        },
+        "CreateRoomRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "example": "학교 카풀"
+                },
+                "openchat_url": {
+                    "type": "string",
+                    "x-nullable": true,
+                    "example": "https://open.kakao.com/o/xxxxx"
+                }
+            }
+        },
         "HubStopResponse": {
             "type": "object",
+            "required": [
+                "id",
+                "name",
+                "room_id",
+                "sort_order"
+            ],
             "properties": {
                 "id": {
                     "type": "string"
@@ -702,12 +779,30 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "sort_order": {
-                    "type": "string"
+                    "type": "integer",
+                    "example": 0
+                }
+            }
+        },
+        "JoinRoomRequest": {
+            "type": "object",
+            "required": [
+                "invite_code"
+            ],
+            "properties": {
+                "invite_code": {
+                    "type": "string",
+                    "example": "a1b2c3d4"
                 }
             }
         },
         "JoinRoomResponse": {
             "type": "object",
+            "required": [
+                "id",
+                "invite_code",
+                "name"
+            ],
             "properties": {
                 "id": {
                     "type": "string"
@@ -720,19 +815,48 @@ const docTemplate = `{
                 }
             }
         },
+        "LoginRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "user@example.com"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "password123"
+                }
+            }
+        },
         "LoginResponse": {
             "type": "object",
+            "required": [
+                "access_token",
+                "token_type"
+            ],
             "properties": {
                 "access_token": {
                     "type": "string"
                 },
                 "token_type": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Bearer"
                 }
             }
         },
         "MatchDetailResponse": {
             "type": "object",
+            "required": [
+                "created_at",
+                "id",
+                "members",
+                "room_id",
+                "status"
+            ],
             "properties": {
                 "created_at": {
                     "type": "string"
@@ -756,6 +880,15 @@ const docTemplate = `{
         },
         "MatchMemberResponse": {
             "type": "object",
+            "required": [
+                "from_stop_id",
+                "nickname",
+                "queue_entry_id",
+                "time_end",
+                "time_start",
+                "to_stop_id",
+                "user_id"
+            ],
             "properties": {
                 "from_stop_id": {
                     "type": "string"
@@ -782,9 +915,16 @@ const docTemplate = `{
         },
         "MatchResponse": {
             "type": "object",
+            "required": [
+                "created_at",
+                "id",
+                "room_id",
+                "status"
+            ],
             "properties": {
                 "created_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2026-08-02T09:30:00Z"
                 },
                 "id": {
                     "type": "string"
@@ -799,14 +939,25 @@ const docTemplate = `{
         },
         "MessageResponse": {
             "type": "object",
+            "required": [
+                "message"
+            ],
             "properties": {
                 "message": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ok"
                 }
             }
         },
         "NotificationResponse": {
             "type": "object",
+            "required": [
+                "body",
+                "created_at",
+                "id",
+                "title",
+                "type"
+            ],
             "properties": {
                 "body": {
                     "type": "string"
@@ -818,13 +969,16 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "read_at": {
-                    "type": "string"
+                    "type": "string",
+                    "x-nullable": true
                 },
                 "ref_id": {
-                    "type": "string"
+                    "type": "string",
+                    "x-nullable": true
                 },
                 "ref_type": {
-                    "type": "string"
+                    "type": "string",
+                    "x-nullable": true
                 },
                 "title": {
                     "type": "string"
@@ -836,6 +990,18 @@ const docTemplate = `{
         },
         "QueueEntryResponse": {
             "type": "object",
+            "required": [
+                "from_stop_id",
+                "id",
+                "max_seats",
+                "min_seats",
+                "room_id",
+                "status",
+                "time_end",
+                "time_start",
+                "to_stop_id",
+                "user_id"
+            ],
             "properties": {
                 "from_stop_id": {
                     "type": "string"
@@ -844,25 +1010,35 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "match_id": {
-                    "type": "string"
+                    "type": "string",
+                    "x-nullable": true
                 },
                 "max_seats": {
-                    "type": "string"
+                    "type": "integer",
+                    "example": 4
                 },
                 "min_seats": {
-                    "type": "string"
+                    "type": "integer",
+                    "example": 2
                 },
                 "room_id": {
                     "type": "string"
                 },
                 "status": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "waiting",
+                        "matched",
+                        "cancelled"
+                    ]
                 },
                 "time_end": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2026-08-02T10:00:00Z"
                 },
                 "time_start": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2026-08-02T09:00:00Z"
                 },
                 "to_stop_id": {
                     "type": "string"
@@ -874,6 +1050,13 @@ const docTemplate = `{
         },
         "RoomDetailResponse": {
             "type": "object",
+            "required": [
+                "id",
+                "invite_code",
+                "members",
+                "name",
+                "owner_id"
+            ],
             "properties": {
                 "id": {
                     "type": "string"
@@ -891,7 +1074,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "openchat_url": {
-                    "type": "string"
+                    "type": "string",
+                    "x-nullable": true
                 },
                 "owner_id": {
                     "type": "string"
@@ -900,6 +1084,11 @@ const docTemplate = `{
         },
         "RoomMemberResponse": {
             "type": "object",
+            "required": [
+                "email",
+                "nickname",
+                "user_id"
+            ],
             "properties": {
                 "email": {
                     "type": "string"
@@ -914,124 +1103,93 @@ const docTemplate = `{
         },
         "RoomResponse": {
             "type": "object",
+            "required": [
+                "id",
+                "invite_code",
+                "name",
+                "owner_id"
+            ],
             "properties": {
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
                 },
                 "invite_code": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "a1b2c3d4"
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "학교 카풀"
                 },
                 "openchat_url": {
-                    "type": "string"
+                    "type": "string",
+                    "x-nullable": true
                 },
                 "owner_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                }
+            }
+        },
+        "SignUpRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "nickname",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "user@example.com"
+                },
+                "nickname": {
+                    "type": "string",
+                    "example": "가지"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "password123"
+                }
+            }
+        },
+        "UpdateHubStopRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "example": "후문"
+                },
+                "sort_order": {
+                    "type": "integer",
+                    "x-nullable": true,
+                    "example": 1
                 }
             }
         },
         "UserResponse": {
             "type": "object",
+            "required": [
+                "email",
+                "id",
+                "nickname"
+            ],
             "properties": {
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "user@example.com"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
                 },
                 "nickname": {
-                    "type": "string"
-                }
-            }
-        },
-        "httpadapter.createHubStopRequest": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "sort_order": {
-                    "type": "integer"
-                }
-            }
-        },
-        "httpadapter.createQueueEntryRequest": {
-            "type": "object",
-            "properties": {
-                "from_stop_id": {
-                    "type": "string"
-                },
-                "max_seats": {
-                    "type": "integer"
-                },
-                "min_seats": {
-                    "type": "integer"
-                },
-                "time_end": {
-                    "type": "string"
-                },
-                "time_start": {
-                    "type": "string"
-                },
-                "to_stop_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "httpadapter.createRoomRequest": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "openchat_url": {
-                    "type": "string"
-                }
-            }
-        },
-        "httpadapter.joinRoomRequest": {
-            "type": "object",
-            "properties": {
-                "invite_code": {
-                    "type": "string"
-                }
-            }
-        },
-        "httpadapter.loginRequest": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "httpadapter.signUpRequest": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "nickname": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "httpadapter.updateHubStopRequest": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "sort_order": {
-                    "type": "integer"
+                    "type": "string",
+                    "example": "가지"
                 }
             }
         }

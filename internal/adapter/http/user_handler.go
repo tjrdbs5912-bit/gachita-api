@@ -32,9 +32,5 @@ func (r *Router) getMe(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusOK, map[string]string{
-		"id":       user.ID.String(),
-		"email":    user.Email,
-		"nickname": user.Nickname,
-	})
+	writeJSON(w, http.StatusOK, toUserResponse(user.ID.String(), user.Email, user.Nickname))
 }

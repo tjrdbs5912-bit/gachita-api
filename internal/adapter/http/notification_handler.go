@@ -2,35 +2,11 @@ package httpadapter
 
 import (
 	"net/http"
-	"time"
 
 	"gachita-api/internal/db"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
-
-func notificationToMap(n db.Notification) map[string]string {
-	m := map[string]string{
-		"id":         n.ID.String(),
-		"type":       n.Type,
-		"title":      n.Title,
-		"body":       n.Body,
-		"created_at": n.CreatedAt.Time.Format(time.RFC3339),
-		"read_at":    "",
-		"ref_type":   "",
-		"ref_id":     "",
-	}
-	if n.ReadAt.Valid {
-		m["read_at"] = n.ReadAt.Time.Format(time.RFC3339)
-	}
-	if n.RefType.Valid {
-		m["ref_type"] = n.RefType.String
-	}
-	if n.RefID.Valid {
-		m["ref_id"] = n.RefID.String()
-	}
-	return m
-}
 
 // ListNotifications godoc
 // @Summary      내 알림 목록
@@ -57,9 +33,9 @@ func (r *Router) listNotifications(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	list := make([]map[string]string, 0, len(items))
+	list := make([]NotificationResponse, 0, len(items))
 	for _, n := range items {
-		list = append(list, notificationToMap(n))
+		list = append(list, toNotificationResponse(n))
 	}
 	writeJSON(w, http.StatusOK, list)
 }
@@ -99,7 +75,7 @@ func (r *Router) readNotification(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusOK, notificationToMap(n))
+	writeJSON(w, http.StatusOK, toNotificationResponse(n))
 }
 
 // ReadAllNotifications godoc
@@ -126,7 +102,5 @@ func (r *Router) readAllNotifications(w http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	writeJSON(w, http.StatusOK, map[string]string{
-		"message": "모든 알림을 읽음 처리했습니다.",
-	})
+	writeJSON(w, http.StatusOK, MessageResponse{Message: "모든 알림을 읽음 처리했습니다."})
 }
